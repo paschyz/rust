@@ -23,7 +23,7 @@ jobs:
         cargo doc --no-deps
     - name: Check
       run: |
-        ls -l ./target
+        ls -l ./target/doc
 
     - name: Publish Documentation
       uses: peaceiris/actions-gh-pages@v3
