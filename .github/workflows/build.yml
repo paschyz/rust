@@ -21,6 +21,9 @@ jobs:
     - name: Generate Documentation
       run: |
         cargo doc --no-deps
+    - name: Check
+      run: |
+        ls -l ./target
 
     - name: Publish Documentation
       uses: peaceiris/actions-gh-pages@v3
