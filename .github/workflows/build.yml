@@ -1,4 +1,3 @@
-
 name: Publish Docker image
 
 on:
@@ -15,7 +14,7 @@ jobs:
 
       - name: Checkout front directory
         run: cd front
-        
+
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
