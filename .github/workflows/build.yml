@@ -1,4 +1,5 @@
-name: Rust Doc CI
+# .gitlab-ci.yml
+name: CI
 
 on:
   push:
@@ -6,27 +7,39 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build_and_push_images:
+    stage: build
+    variables:
+      IMAGE_BACKEND: paschyz/taskify-back
+      IMAGE_FRONTEND: paschyz/taskify-front
+    services:
+      - docker:19.03.12-dind
+    before_script:
+      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    script:
+      - cd back
+      - docker build -t $IMAGE_BACKEND .
+      - docker push $IMAGE_BACKEND
+      - cd ../front
+      - docker build -t $IMAGE_FRONTEND .
+      - docker push $IMAGE_FRONTEND
 
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+  test:
+    stage: test
+    script:
+      # Run your tests here
+      - echo "Running tests..."
 
-    - name: Install Rust
-      run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        export PATH="$HOME/.cargo/bin:$PATH"
+  deploy_backend:
+    stage: deploy
+    script:
+      - cd back
+      - docker-compose up -d
 
-    - name: Generate Documentation
-      run: |
-        cargo doc --no-deps
-    - name: Check
-      run: |
-        ls -l ./target/doc/static.files
+  deploy_frontend:
+    stage: deploy
+    script:
+      - cd front
+      - docker-compose up -d
 
-    - name: Publish Documentation
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GH_TOKEN }}
-        publish_dir: ./target/doc/rust
+# Optionally, you might want to add additional jobs for deployment steps, like deploying to Kubernetes or other environments.
